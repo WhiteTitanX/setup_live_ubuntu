@@ -109,3 +109,6 @@ pactl set-sink-mute 0 1
 
 #Disable Screensaver
 dconf write /org/gnome/desktop/session/idle-delay "uint32 0"
+
+#Remove Icons from Gnome Launcher
+dconf write /org/gnome/shell/favorite-apps "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop']"
