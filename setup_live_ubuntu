@@ -23,6 +23,9 @@ apt-get -y dist-upgrade
 printf "Removing old dependencies"
 apt-get -y autoremove
 
+printf "Downloading & Installing net-tools\n"
+apt-get -y install net-tools
+
 printf "Downloading & Installing nmap\n"
 apt-get -y install nmap
 
