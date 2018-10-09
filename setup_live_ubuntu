@@ -108,10 +108,10 @@ iptables -A OUTPUT -o $interface -p icmp --icmp-type echo-request -j ACCEPT
 pactl set-sink-mute 0 1
 
 #Disable Screensaver
-dconf write /org/gnome/desktop/session/idle-delay "uint32 0"
+su - ubuntu -c "dconf write /org/gnome/desktop/session/idle-delay \"uint32 0\""
 
 #Remove Desktop Icon
 rm /home/ubuntu/Desktop/ubiquity.desktop
 
 #Remove Icons from Gnome Launcher
-dconf write /org/gnome/shell/favorite-apps "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop']"
+su - ubuntu -c "dconf write /org/gnome/shell/favorite-apps \"['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop']\""
