@@ -10,18 +10,18 @@ clear
 printf "Updating package lists\n"
 apt-get update
 
-printf "Upgrading packages\n"
-apt-get -y upgrade
+#printf "Upgrading packages\n"
+#apt-get -y upgrade
 
 printf "Installing security updates\n"
 apt-get -y install unattended-upgrades
 unattended-upgrades -d
 
-printf "Installing ubuntu dist updates\n"
-apt-get -y dist-upgrade
+#printf "Installing ubuntu dist updates\n"
+#apt-get -y dist-upgrade
 
-printf "Removing old dependencies"
-apt-get -y autoremove
+#printf "Removing old dependencies"
+#apt-get -y autoremove
 
 printf "Downloading & Installing net-tools\n"
 apt-get -y install net-tools
@@ -53,7 +53,7 @@ printf "Setting up iptables\n"
 
 #Interface to be configured
 printf "Please enter a interface to be configured with iptables.\n"
-read -t 10 input
+read -t 120 input
 if [ "${#input}" -eq 0 ]; then
 	printf "Please enter a interface to be configured with iptables. Exiting script.\n"
 	exit;
