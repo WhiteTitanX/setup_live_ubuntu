@@ -100,3 +100,9 @@ iptables -A OUTPUT -o $interface -p tcp --dport 443 -j ACCEPT
 #Allow ssh
 #iptables -A OUTPUT -o $interface -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -o $interface -p icmp --icmp-type echo-request -j ACCEPT
+
+
+#More Custom Commands
+
+#Mute Audio
+pactl set-sink-mute 0 1
