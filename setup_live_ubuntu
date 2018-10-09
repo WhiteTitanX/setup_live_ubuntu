@@ -49,17 +49,14 @@ if [[ $udpscan = *"5353/udp open|filtered zeroconf"* ]]; then
 	apt-get -y remove avahi-daemon
 fi
 
-printf "Setting up iptables\n"
+printf "Setting up iptables on ethernet adapter\n"
 
-#Interface to be configured
-printf "Please enter a interface to be configured with iptables.\n"
-read -t 120 input
-if [ "${#input}" -eq 0 ]; then
-	printf "Please enter a interface to be configured with iptables. Exiting script.\n"
+interface=$(ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2;getline}')
+
+if [ "${#interface}" -eq 0 ]; then
+	printf "Error, no ethernet adapter found! Exiting script.\n"
 	exit;
 fi
-
-interface=${input}
 
 #Flush iptables
 
