@@ -1,0 +1,102 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+	printf "Please run script as root\n"
+	exit;
+fi
+
+clear
+
+printf "Updating package lists\n"
+apt-get update
+
+printf "Upgrading packages\n"
+apt-get -y upgrade
+
+printf "Installing security updates\n"
+apt-get -y install unattended-upgrades
+unattended-upgrades -d
+
+printf "Installing ubuntu dist updates\n"
+apt-get -y dist-upgrade
+
+printf "Removing old dependencies"
+apt-get -y autoremove
+
+printf "Downloading & Installing nmap\n"
+apt-get -y install nmap
+
+printf "Running TCP scan on localhost\n"
+tcpscan=$(nmap -sT localhost)
+
+printf "Running UDP scan on localhost\n"
+udpscan=$(nmap -sU localhost)
+
+#printf "$tcpscan\n$udpscan\n"
+
+if [[ $tcpscan = *"631/tcp open  ipp"* ]]; then
+	printf "Removing cups service\n"
+	apt-get -y remove cups
+	apt-get -y remove cups-browsed	
+	apt-get -y remove cups-daemon
+fi
+
+if [[ $udpscan = *"5353/udp open|filtered zeroconf"* ]]; then
+	printf "Removing zeroconf service\n"
+	apt-get -y remove avahi-daemon
+fi
+
+printf "Setting up iptables\n"
+
+#Interface to be configured
+printf "Please enter a interface to be configured with iptables.\n"
+read -t 10 input
+if [ "${#input}" -eq 0 ]; then
+	printf "Please enter a interface to be configured with iptables. Exiting script.\n"
+	exit;
+fi
+
+interface=${input}
+
+#Flush iptables
+
+iptables -F
+
+printf "Flushed iptables\n"
+
+#Policies
+
+iptables -P OUTPUT DROP
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+
+printf "Setup default policies\n"
+
+#Input Chain Rules
+
+iptables -A INPUT -i lo -j ACCEPT
+
+#Allow ssh
+#iptables -A INPUT -i $interface -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+
+#Allow established connections
+#iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -i $interface -p tcp --sport 80 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -i $interface -p tcp --sport 443 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -i $interface -p tcp --sport 53 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -i $interface -p udp --sport 53 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -i $interface -p icmp --icmp-type echo-reply -j ACCEPT
+printf "Setup input rules\n"
+
+#Output Chain Rules
+
+iptables -A OUTPUT -o lo -j ACCEPT
+
+iptables -A OUTPUT -o $interface -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -o $interface -p tcp --dport 53 -j ACCEPT
+iptables -A OUTPUT -o $interface -p udp --dport 53 -j ACCEPT
+iptables -A OUTPUT -o $interface -p udp --dport 67:68 -j ACCEPT
+iptables -A OUTPUT -o $interface -p tcp --dport 443 -j ACCEPT
+#Allow ssh
+#iptables -A OUTPUT -o $interface -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o $interface -p icmp --icmp-type echo-request -j ACCEPT
